@@ -39,6 +39,4 @@ const reactionSchema = new Schema<IReaction> (
     }
 );
 
-
-
 export default reactionSchema;

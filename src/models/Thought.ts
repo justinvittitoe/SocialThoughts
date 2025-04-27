@@ -1,11 +1,12 @@
-import { Schema, Document, model } from 'mongoose';
-import Reaction from './Reaction.js';
+import { Schema, Document, model, Types } from 'mongoose';
+import reactionSchema from './Reaction.js';
 
 interface IThoughts extends Document {
+    _id: Types.ObjectId;
     thoughtText: string;
     createdAt: Date;
     username: string;
-    reactions: typeof Reaction[];
+    reactions: Types.Subdocument[];
 }
 
 const thoughtSchema =new Schema<IThoughts> (
@@ -19,19 +20,27 @@ const thoughtSchema =new Schema<IThoughts> (
         createdAt: {
             type: Date,
             default: Date.now,
-            set: (date: Date) => {
-                return date.toLocaleTimeString;
+            get: (value: any) => {
+                return value.toLocaleString('en-US', {
+                    year: 'numeric',
+                    month: '2-digit',
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit',
+                });
             },
         },
         username: {
             type: String,
             required: true,
         },
-        reactions: [Reaction],
+        reactions: [reactionSchema],
     },
     {
         toJSON: {
             virtuals: true,
+            getters: true,
         },
         id: false,
     },
@@ -43,6 +52,6 @@ thoughtSchema
     return this.reactions.length
 })
 
-const Thoughts = model('thoughts', thoughtSchema);
+const Thoughts = model<IThoughts>('thoughts', thoughtSchema);
 
 export default Thoughts;

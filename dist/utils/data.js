@@ -25,7 +25,7 @@ export const email = [
     'icecream@email.com',
     'ilovesharks@email.com',
     'soccerplayer123@email.com'
-]
+];
 export const thoughts = [
     "Life is better with coffee.",
     "Why do cats always knock things over?",
@@ -48,7 +48,6 @@ export const thoughts = [
     "The ocean is both beautiful and terrifying.",
     "What if we lived on another planet?"
 ];
-
 export const reactions = [
     "I totally agree!",
     "That's so interesting.",
@@ -71,11 +70,9 @@ export const reactions = [
     "I wish I had thought of that.",
     "This is so creative!"
 ];
-
-export const getRandomArrItem = (arr: any) => arr[Math.floor(Math.random() * arr.length)];
-
+export const getRandomArrItem = (arr) => arr[Math.floor(Math.random() * arr.length)];
 // Function to generate random assignments that we can add to student object.
-export const getRandomThoughts = (int: number) => {
+export const getRandomThoughts = (int) => {
     const results = [];
     for (let i = 0; i < int; i++) {
         results.push({
