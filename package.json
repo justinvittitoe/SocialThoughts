@@ -1,0 +1,27 @@
+{
+    "name": "mongodbapi",
+    "version": "1.0.0",
+    "description": "",
+    "main": "server.js",
+    "type": "module",
+    "scripts": {
+        "build": "npx tsc",
+        "start": "npm run build && node dist/server.js",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "dotenv": "^16.5.0",
+        "express": "^5.1.0",
+        "mongodb": "^6.16.0",
+        "mongoose": "^8.14.0"
+    },
+    "devDependencies": {
+        "@types/express": "^5.0.1",
+        "@types/mongodb": "^4.0.6",
+        "@types/mongoose": "^5.11.96",
+        "typescript": "^5.5.4"
+    }
+}
