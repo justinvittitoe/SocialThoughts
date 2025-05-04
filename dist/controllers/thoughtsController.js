@@ -34,7 +34,7 @@ export const getThoughtById = async (req, res) => {
 export const createNewThought = async (req, res) => {
     const { thoughtText, username } = req.body;
     try {
-        const thought = await Thoughts.create({ thoughtText: thoughtText, username });
+        const thought = await Thoughts.create({ thoughtText: thoughtText, username: username });
         const user = await User.findOneAndUpdate({ username }, { $push: { thoughts: thought._id } }, { new: true });
         if (!user) {
             res.status(404).json({ message: 'User not found' });
@@ -48,8 +48,9 @@ export const createNewThought = async (req, res) => {
     }
 };
 export const updateThought = async (req, res) => {
+    const { thoughtText, username } = req.body;
     try {
-        const thought = await Thoughts.findOneAndUpdate({ _id: req.params }, { thoughtText: req.body }, { runValidators: true, new: true });
+        const thought = await Thoughts.findOneAndUpdate({ _id: req.params.thoughtId }, { thoughtText: thoughtText, username: username }, { runValidators: true, new: true });
         if (!thought) {
             res.status(404).json({ message: 'Thought not found' });
         }
@@ -68,6 +69,21 @@ export const deleteThought = async (req, res) => {
             res.status(404).json({ message: 'Thought not found' });
         }
         res.status(200).json({ message: 'Thought deleted' });
+    }
+    catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+export const getReaction = async (req, res) => {
+    const thoughtId = req.params.thoughtId;
+    try {
+        const thought = await Thoughts.findById(thoughtId).populate('reactions');
+        if (!thought) {
+            res.status(401).json({ message: 'Thought not found' });
+        }
+        res.status(200).json(thought?.reactions);
     }
     catch (error) {
         res.status(500).json({

@@ -37,7 +37,7 @@ export const createNewThought = async(req:Request, res:Response) => {
     const { thoughtText, username } = req.body
     try {
         const thought = await Thoughts.create(
-            {thoughtText: thoughtText, username}
+            {thoughtText: thoughtText, username: username}
         )
         const user = await User.findOneAndUpdate(
             {username},
@@ -56,10 +56,11 @@ export const createNewThought = async(req:Request, res:Response) => {
 }
 
 export const updateThought = async(req:Request, res:Response) => {
+    const { thoughtText, username } = req.body
     try {
         const thought = await Thoughts.findOneAndUpdate(
-            {_id: req.params},
-            {thoughtText: req.body},
+            {_id: req.params.thoughtId},
+            {thoughtText: thoughtText, username: username},
             {runValidators:true, new:true}
         );
         if(!thought) {
@@ -87,6 +88,22 @@ export const deleteThought = async (req: Request, res: Response) => {
         res.status(200).json({message: 'Thought deleted'})
 
     } catch (error: any) {
+        res.status(500).json({
+            message: error.message
+        })
+    }
+}
+
+export const getReaction = async (req:Request, res:Response) => {
+    const thoughtId = req.params.thoughtId
+    try {
+        const thought = await Thoughts.findById(thoughtId).populate('reactions')
+        if(!thought) {
+            res.status(401).json({message: 'Thought not found'})
+        }
+
+        res.status(200).json(thought?.reactions)
+    } catch(error:any) {
         res.status(500).json({
             message: error.message
         })

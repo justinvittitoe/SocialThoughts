@@ -6,6 +6,7 @@ import {
     createNewThought,
     updateThought,
     deleteThought,
+    getReaction,
     createReaction,
     deleteReaction
 } from '../../controllers/thoughtsController.js';
@@ -18,6 +19,7 @@ router.route('/:thoughtId')
 .delete(deleteThought)
 
 router.route('/:thoughtId/reaction')
+.get(getReaction)
 .post(createReaction)
 
 router.route('/:thoughtId/reaction/:reactionId')
