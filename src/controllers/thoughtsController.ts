@@ -23,7 +23,7 @@ export const getThoughtById = async(req:Request, res:Response) => {
             res.json(thought)
         } else {
             res.status(404).json({
-                message: 'User not found'
+                message: 'Thought not found'
             })
         }
     } catch(error:any){
@@ -37,9 +37,9 @@ export const createNewThought = async(req:Request, res:Response) => {
     const { thoughtText, username } = req.body
     try {
         const thought = await Thoughts.create(
-            {thoughtText: thoughtText, username: username}
+            {thoughtText: thoughtText, username}
         )
-        const user = User.findOneAndUpdate(
+        const user = await User.findOneAndUpdate(
             {username},
             {$push: { thoughts: thought._id}},
             {new:true}
@@ -78,7 +78,7 @@ export const updateThought = async(req:Request, res:Response) => {
 export const deleteThought = async (req: Request, res: Response) => {
     try {
         const thought = await Thoughts.findOneAndDelete(
-            { _id: req.params },
+            { _id: req.params.thoughtId },
         );
         if (!thought) {
             res.status(404).json({ message: 'Thought not found' })
@@ -94,7 +94,7 @@ export const deleteThought = async (req: Request, res: Response) => {
 }
 
 export const createReaction = async (req: Request, res: Response) => {
-    const thoughtId = req.params
+    const thoughtId = req.params.thoughtId
     try {
         const {reactionBody, username} = req.body
 
@@ -121,17 +121,22 @@ export const createReaction = async (req: Request, res: Response) => {
 }
 
 export const deleteReaction = async (req: Request, res: Response) => {
-    const {thoughtId, reactionId} = req.params
+    const thoughtId = req.params.thoughtId
+    const reactionId = req.params.reactionId
     try {
-        const thought = await Thoughts.findOneAndUpdate(
-            { _id: thoughtId },
-            { $pull: { reactions: reactionId } },
+        console.log(reactionId)
+        console.log(thoughtId)
+        const thought = await Thoughts.findByIdAndUpdate(
+            thoughtId,
+            { $pull: { reactions: {_id:reactionId } }},
+            {new: true}
         );
+        
         if (!thought) {
             res.status(404).json({ message: 'Thought not found' })
         }
 
-        res.status(200).json({message: 'Reaction Deleted'})
+        res.status(200).json({message: 'Reaction Deleted', thought})
 
     } catch (error: any) {
         res.status(500).json({

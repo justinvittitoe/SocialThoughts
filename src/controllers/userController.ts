@@ -35,9 +35,9 @@ export const getUserById = async(req:Request, res:Response) => {
 }
 
 export const createUser = async(req:Request, res:Response) => {
-    const { user } = req.body
+    const  {username,email} = req.body
     try {
-        const newUser = await User.create({user});
+        const newUser = await User.create({username,email});
         res.status(201).json(newUser)
     } catch (error:any) {
         res.status(500).json({
@@ -108,14 +108,19 @@ export const getFriends = async(req:Request, res:Response) => {
 }
 
 export const addFriend = async(req:Request, res:Response) => {
-    const  { userId, friendId }  = req.params
+    const  userId = req.params.userId
+    const friendId = req.params.friendId
     try {
 
         if (!mongoose.Types.ObjectId.isValid(friendId)) {
             res.status(400).json({ message: 'Invalid friend ID' });
         }
 
-        const user = await User.findById({userId});
+        const user = await User.findByIdAndUpdate(
+            userId,
+            {$push: {friends: friendId}},
+            {new: true}
+        );
 
         if(!user) {
             res.status(404).json({message: 'User not found'})
@@ -124,9 +129,7 @@ export const addFriend = async(req:Request, res:Response) => {
             res.status(400).json({message: 'Friend already added'})
         }
 
-        user?.friends.push(new mongoose.Schema.Types.ObjectId(friendId));
-
-        res.status(201).json(friendId)
+        res.status(201).json(user)
     } catch (error: any) {
         res.status(500).json({
             message: error.message
@@ -135,28 +138,25 @@ export const addFriend = async(req:Request, res:Response) => {
 }
 
 export const deleteFriend = async (req: Request, res: Response) => {
-    const { userId, friendId } = req.params
+    const userId = req.params.userId
+    const friendId = req.params.friendId
     try {
 
         if (!mongoose.Types.ObjectId.isValid(friendId)) {
             res.status(400).json({ message: 'Invalid friend ID' });
         }
 
-        const user = await User.findById({ userId });
+        const user = await User.findByIdAndUpdate(
+            userId,
+            {$pull: {friends: friendId}},
+            {new:true}
+        );
 
         if (!user) {
             res.status(404).json({ message: 'User not found' })
         }
-        if (user?.friends.includes(new mongoose.Schema.Types.ObjectId(friendId))) {
-            res.status(400).json({ message: 'Friend already added' })
-        }
 
-        await User.updateOne(
-            {_id: userId},
-            {$pull: {friends: friendId}}
-        );
-
-        res.status(201).json(friendId)
+        res.status(201).json(user)
     } catch (error: any) {
         res.status(500).json({
             message: error.message

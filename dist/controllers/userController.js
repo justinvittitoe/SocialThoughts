@@ -1,4 +1,5 @@
 import { User, Thoughts } from '../models/index.js';
+import mongoose from 'mongoose';
 export const getAllUsers = async (_req, res) => {
     try {
         const users = await User.find()
@@ -33,9 +34,9 @@ export const getUserById = async (req, res) => {
     }
 };
 export const createUser = async (req, res) => {
-    const { user } = req.body;
+    const { username, email } = req.body;
     try {
-        const newUser = await User.create({ user });
+        const newUser = await User.create({ username, email });
         res.status(201).json(newUser);
     }
     catch (error) {
@@ -89,6 +90,47 @@ export const getFriends = async (req, res) => {
                 message: 'User not found'
             });
         }
+    }
+    catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+export const addFriend = async (req, res) => {
+    const userId = req.params.userId;
+    const friendId = req.params.friendId;
+    try {
+        if (!mongoose.Types.ObjectId.isValid(friendId)) {
+            res.status(400).json({ message: 'Invalid friend ID' });
+        }
+        const user = await User.findByIdAndUpdate(userId, { $push: { friends: friendId } }, { new: true });
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+        }
+        if (user?.friends.includes(new mongoose.Schema.Types.ObjectId(friendId))) {
+            res.status(400).json({ message: 'Friend already added' });
+        }
+        res.status(201).json(user);
+    }
+    catch (error) {
+        res.status(500).json({
+            message: error.message
+        });
+    }
+};
+export const deleteFriend = async (req, res) => {
+    const userId = req.params.userId;
+    const friendId = req.params.friendId;
+    try {
+        if (!mongoose.Types.ObjectId.isValid(friendId)) {
+            res.status(400).json({ message: 'Invalid friend ID' });
+        }
+        const user = await User.findByIdAndUpdate(userId, { $pull: { friends: friendId } }, { new: true });
+        if (!user) {
+            res.status(404).json({ message: 'User not found' });
+        }
+        res.status(201).json(user);
     }
     catch (error) {
         res.status(500).json({
